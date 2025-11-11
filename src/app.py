@@ -6,18 +6,40 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db
+from api.models import db, User
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from flask_jwt_extended import decode_token
+
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+import os
+import smtplib
+from email.message import EmailMessage
+from datetime import timedelta
+from api.email import send_email
+
 
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
+# ----------------------------------------------------------------> ya está instanciado FLASK
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+# Allow CORS for the whole app (useful for the frontend dev server)
+CORS(app)
+
+
+# de mi .env pongo el nombre de mi variable JWT_SECRET_KEY
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+jwt = JWTManager(app)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
@@ -56,7 +78,149 @@ def sitemap():
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
-# any other endpoint will try to serve it like a static file
+
+@app.route("/prueba", methods=["GET"])
+def prueba():
+    return jsonify({"msg": "Bienvenido a la ruta de prueba"})
+
+
+# # ----------------------------------------------------------------> ENDPOINT DE REGISTRO
+@app.route("/register", methods=["POST"])
+def register():
+    body = request.get_json(silent=True)
+    if body is None:
+        return jsonify({'msg': 'El body debe tener info, la que requiere la tabla'}), 400
+
+    email = body.get("email")
+    password = body.get("password")
+    if not email or not password:
+        return jsonify({'msg': 'Falta email o contraseña en el registro'}), 400
+
+    # Verifica si ya existe el usuario
+    user = User.query.filter_by(email=email).first()
+    if user:
+        return jsonify({'msg': 'Ya existe un usuario con ese correo'}), 400
+
+    # Crear nuevo usuario
+    new_user = User(email=email, is_active=True)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Usuario creado correctamente",
+        "user": {"email": new_user.email}
+    }), 201
+
+
+# ----------------------------------------------------------------> ENDPOINT DE LOGIN
+@app.route("/login", methods=["POST"])
+def login():
+    body = request.get_json(silent=True)
+    print(body)
+    if body is None:
+        return jsonify({'msg': 'El body debe tener info, la que requiere la tabla'}), 400
+    email = body.get("email")
+    password = body.get("password")
+    if not email or not password:
+        return jsonify({'msg': 'Falta email o contraseña en el registro'}), 400
+    user = User.query.filter_by(email=email).first()
+    # chequeamos con la función tambien de mis modelos que compara las contraseñas
+    if user is None or not user.checkpassword(password):
+        return jsonify({'msg': 'El usuario no existe o la contraseña no es correcta'}), 400
+    # recordar convertirlo a str porque espera un string la autorizacion
+    access_token = create_access_token(identity=str(user.id))
+
+    return jsonify({
+        "token": access_token,
+        "user": user.serialize()
+    }), 200
+
+
+@app.route("/private", methods=["GET"])
+@jwt_required()
+def private():
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+    return jsonify(user.serialize()), 200
+
+
+# ----------------------------------------------------------------> ENDPOINT DE RECUPERACION (simulado)
+@app.route("/recover", methods=["POST"])
+def recover():
+    body = request.get_json(silent=True)
+    if not body or "email" not in body:
+        return jsonify({'msg': 'Se requiere un email'}), 400
+
+    email = body["email"]
+    user = User.query.filter_by(email=email).first()
+
+    # Respuesta genérica (seguridad)
+    generic_msg = {
+        'msg': 'Si el email existe, se ha enviado un enlace de recuperación'}
+
+    if not user:
+        return jsonify(generic_msg), 200
+
+    # Crear token JWT con expiración de 1 hora
+    token = create_access_token(identity=str(
+        user.id), expires_delta=timedelta(hours=1))
+
+    # Generar el link del frontend
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    reset_link = f"{frontend_url.rstrip('/')}/reset?token={token}"
+
+    # Envío de correo: delegar a la capa de email (support Mailgun/SendGrid/SMTP/MailHog)
+    subject = 'Recuperar contraseña - Tu App'
+    text_body = f"Para restablecer tu contraseña visita:\n{reset_link}"
+    html_body = f"""
+        <p>Hola,</p>
+        <p>Para restablecer tu contraseña, haz clic aquí:</p>
+        <p><a href=\"{reset_link}\">{reset_link}</a></p>
+        <p>El enlace expirará en 1 hora.</p>
+    """
+
+    ok, err = send_email(email, subject, text_body, html_body)
+    if ok:
+        print(f"✅ Enlace de recuperación enviado a {email}")
+    else:
+        print("❌ Error enviando correo:", err)
+
+    return jsonify(generic_msg), 200
+
+
+# ----------------------------------------------------------------> ENDPOINT PARA RESETEAR CONTRASEÑA
+
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    body = request.get_json(silent=True)
+    if not body or "token" not in body or "password" not in body:
+        return jsonify({'msg': 'Faltan datos'}), 400
+
+    token = body["token"]
+    new_password = body["password"]
+
+    try:
+        # Decodifica el token del enlace
+        decoded = decode_token(token)
+        user_id = decoded["sub"]  # identidad del token
+    except Exception as e:
+        print("❌ Error al decodificar token:", e)
+        return jsonify({'msg': 'Token inválido o expirado'}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+
+    # Actualizamos la contraseña con tu método de modelo
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({'msg': 'Contraseña actualizada correctamente'}), 200
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):

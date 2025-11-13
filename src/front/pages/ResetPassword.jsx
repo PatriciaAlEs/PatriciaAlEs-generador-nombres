@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Spinner from '../components/Spinner'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useDarkMode } from '../context/DarkModeContext'
 
@@ -9,6 +10,7 @@ export const ResetPassword = () => {
     const [password, setPassword] = useState('')
     const [confirm, setConfirm] = useState('')
     const [msg, setMsg] = useState(null)
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -23,6 +25,7 @@ export const ResetPassword = () => {
         if (password !== confirm) return setMsg({ type: 'error', text: 'Las contraseñas no coinciden.' })
 
         try {
+            setLoading(true)
             const backend = import.meta.env.VITE_BACKEND_URL || ''
             const res = await fetch(backend + '/reset-password', {
                 method: 'POST',
@@ -38,11 +41,13 @@ export const ResetPassword = () => {
             }
         } catch (err) {
             setMsg({ type: 'error', text: err.message })
+        } finally {
+            setLoading(false)
         }
     }
 
     return (
-        <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
+        <div className={`flex items-center justify-center py-12 ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
             <div className={`w-full max-w-md p-8 rounded-xl shadow-lg ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
                 <h2 className="text-2xl font-bold mb-4 text-emerald-300">Restablecer contraseña</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +60,7 @@ export const ResetPassword = () => {
                         <input required type="password" value={confirm} onChange={e => setConfirm(e.target.value)} className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 ${darkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-300'}`} />
                     </div>
                     <div className="flex justify-end">
-                        <button className="bg-emerald-300 text-black font-semibold px-4 py-2 rounded">Restablecer</button>
+                        <button disabled={loading} className={`bg-emerald-300 text-black font-semibold px-4 py-2 rounded ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>Restablecer</button>
                     </div>
                 </form>
 
@@ -64,6 +69,7 @@ export const ResetPassword = () => {
                         {msg.text}
                     </div>
                 )}
+                <Spinner active={loading} delay={3000} transparentBackground={true} />
             </div>
         </div>
     )

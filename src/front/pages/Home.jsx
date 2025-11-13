@@ -14,7 +14,7 @@ export const Home = () => {
 	}
 
 	return (
-		<div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
+		<div className={`flex items-center justify-center py-12 ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
 			<div className="max-w-5xl mx-auto px-6 py-16">
 				<div className="grid md:grid-cols-2 gap-10 items-center">
 					<div className="space-y-6">

@@ -8,10 +8,12 @@ const LayoutContent = () => {
     const { darkMode } = useDarkMode()
 
     return (
-        <div className={darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}>
+        <div className={`${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'} min-h-screen flex flex-col`}>
             <ScrollToTop>
                 <Navbar />
-                <Outlet />
+                <main className="flex-1">
+                    <Outlet />
+                </main>
                 <Footer />
             </ScrollToTop>
         </div>

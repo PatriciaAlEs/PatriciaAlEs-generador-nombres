@@ -8,7 +8,7 @@ export const Footer = () => {
 			<div className="max-w-4xl mx-auto px-4">
 				<p className="mb-2">Pensado y desarrollado por <strong>Patricia Alvarez</strong></p>
 				<div className="flex items-center justify-center gap-4">
-					<a href="https://www.linkedin.com/in/patricia-alvarez" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-emerald-300 hover:opacity-80">
+					<a href="https://www.linkedin.com/in/patricia-alvarez-estevez/" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-emerald-300 hover:opacity-80">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" className="inline-block">
 							<path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8h5v14H0V8zm7.5 0h4.7v1.9h.1c.65-1.24 2.23-2.54 4.6-2.54 4.92 0 5.83 3.24 5.83 7.44V22H18v-7.2c0-1.72-.03-3.94-2.4-3.94-2.4 0-2.76 1.87-2.76 3.8V22H7.5V8z" />
 						</svg>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Spinner from '../components/Spinner'
 import { useNavigate } from 'react-router-dom'
 import { useDarkMode } from '../context/DarkModeContext'
 
@@ -7,12 +8,14 @@ export const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [msg, setMsg] = useState(null)
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setMsg(null)
         try {
+            setLoading(true)
             const backend = import.meta.env.VITE_BACKEND_URL || ''
             const res = await fetch(backend + '/login', {
                 method: 'POST',
@@ -23,18 +26,22 @@ export const Login = () => {
             if (res.ok && data.token) {
                 // guardar token en localStorage
                 localStorage.setItem('token', data.token)
-                setMsg({ type: 'success', text: 'Login correcto. Redirigiendo...' })
-                setTimeout(() => navigate('/'), 800)
+                // notify other listeners in this tab
+                window.dispatchEvent(new Event('auth-change'))
+                setMsg({ type: 'success', text: 'Login correcto. Redirigiendo al generador...' })
+                setTimeout(() => navigate('/generator'), 800)
             } else {
                 setMsg({ type: 'error', text: data.msg || 'Credenciales inválidas' })
             }
         } catch (err) {
             setMsg({ type: 'error', text: err.message })
+        } finally {
+            setLoading(false)
         }
     }
 
     return (
-        <div className={`min-h-screen flex items-center justify-center py-12 ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
+        <div className={`flex items-center justify-center py-12 ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
             <div className={`w-full max-w-md p-8 rounded-xl border-2 border-emerald-300/80 shadow-2xl ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
                 <h2 className="text-2xl font-bold mb-4 text-emerald-300 text-center">Iniciar sesión</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -48,10 +55,12 @@ export const Login = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <button className="bg-emerald-300 text-black font-semibold px-4 py-2 rounded border-2 border-emerald-300 shadow-md hover:shadow-lg transform transition duration-200 hover:-translate-y-0.5">Entrar</button>
+                        <button disabled={loading} className={`bg-emerald-300 text-black font-semibold px-4 py-2 rounded border-2 border-emerald-300 shadow-md transform transition duration-200 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:-translate-y-0.5'}`}>Entrar</button>
                         <a className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`} href="/forgot">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>
+
+                <Spinner active={loading} delay={3000} transparentBackground={true} />
 
                 {msg && (
                     <div className={`mt-4 p-3 rounded ${msg.type === 'success' ? (darkMode ? 'bg-emerald-900 text-emerald-300' : 'bg-emerald-100 text-emerald-800') : (darkMode ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-800')}`}>

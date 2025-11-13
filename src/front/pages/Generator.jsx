@@ -3,47 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useDarkMode } from '../context/DarkModeContext'
 
-const CATEGORIES = {
-    rpg: {
-        label: 'Rol / Fantasía',
-        prefixes: ['Aer', 'Bel', 'Cal', 'Dor', 'El', 'Fin', 'Gal', 'Har', 'Ith', 'Jar', 'Kel', 'Lun', 'Mor', 'Ner', 'Or', 'Pel', 'Qir', 'Ryn', 'Sol', 'Tor'],
-        middles: ['an', 'or', 'en', 'is', 'ar', 'il', 'us', 'ath', 'ion', 'el', 'ir'],
-        suffixes: ['dor', 'wen', 'thas', 'mar', 'gorn', 'dil', 'wyn', 'nor', 'ion', 'rus', 'mir', 'thil']
-    },
-    shooter: {
-        label: 'Shooter',
-        prefixes: ['Ghost', 'Viper', 'Zero', 'Alpha', 'Blaze', 'Raptor', 'Strike', 'Delta', 'Nova', 'Echo', 'Reaper', 'Shadow', 'Specter'],
-        middles: ['_', '-', 'X', '', 'Z', 'Rx'],
-        suffixes: ['01', '99', 'Pro', 'Elite', 'Sniper', 'Shot', 'Ops', 'Core', 'Edge']
-    },
-    br: {
-        label: 'Battle Royale',
-        prefixes: ['Sky', 'Storm', 'Grim', 'Wild', 'Iron', 'Titan', 'Prime', 'Blade', 'Rogue', 'Pulse', 'Venom', 'Apex', 'Crimson', 'Vortex', 'Phantom'],
-        middles: ['', '-', '_', '', 'X', 'Rx', 'Z'],
-        suffixes: ['Survivor', 'Runner', 'King', 'Queen', 'Slayer', 'Champion', 'Drift', 'Edge', 'Hunter', 'Breaker', 'Master']
-    }
-}
-
-const STYLE_MODS = {
-    fantasy: { label: 'Fantasía' },
-    futuristic: { label: 'Futurista' },
-    grim: { label: 'Oscuro' },
-    silly: { label: 'Divertido' }
-}
-
-function rand(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-}
-
-function applyStyle(name, styles) {
-    // simple modifiers based on styles
-    let out = name
-    if (styles.fantasy) out = out.replace(/X/g, 'a').replace(/0/g, 'o')
-    if (styles.futuristic) out = out.split('').map((c, i) => i % 2 ? c.toUpperCase() : c).join('')
-    if (styles.grim) out = out.replace(/[aeiou]/gi, '')
-    if (styles.silly) out = out + rand(['~', '!!', '_o_', '~'])
-    return out
-}
+import { CATEGORIES, STYLE_MODS } from '../utils/generatorData'
+import { getGeneratorData, generateNames } from '../utils/generatorClient'
+import Spinner from '../components/Spinner'
 
 export const Generator = () => {
     const { darkMode } = useDarkMode()
@@ -55,20 +17,15 @@ export const Generator = () => {
     const [results, setResults] = useState([])
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [serverPrefixes, setServerPrefixes] = useState([])
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         // Intentamos obtener datos protegidos del servidor; si el token es inválido redirigimos a login
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
         if (!token) return // ProtectedRoute ya redirige, pero evitamos peticiones si no hay token
 
-        const backend = import.meta.env.VITE_BACKEND_URL || ''
-        fetch(backend + '/generator-data', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        }).then(async res => {
+        setLoading(true)
+        getGeneratorData().then(async res => {
             if (res.status === 401 || res.status === 403) {
                 // token inválido o expirado
                 localStorage.removeItem('token')
@@ -81,39 +38,13 @@ export const Generator = () => {
         }).catch(err => {
             // No hacemos nada en fallo de red; el generador funciona en cliente
             console.warn('No se pudo obtener datos protegidos:', err)
-        })
+        }).finally(() => setLoading(false))
     }, [navigate])
 
-    const generateOne = () => {
-        const cat = CATEGORIES[category]
-        let a = rand(cat.prefixes)
-        const b = rand(cat.middles)
-        const c = rand(cat.suffixes)
-
-        // Si hay palabra obligatoria, sustituye al prefijo
-        if (mandatory.trim()) {
-            // Capitaliza la primera letra si es minúscula
-            a = mandatory.charAt(0).toUpperCase() + mandatory.slice(1)
-        }
-
-        let name = `${a}${b}${c}`
-        name = applyStyle(name, styles)
-        return name
-    }
-
     const generate = async () => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-        const backend = import.meta.env.VITE_BACKEND_URL || ''
         try {
-            const res = await fetch(backend + '/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
-                },
-                body: JSON.stringify({ category, styles, count, mandatory })
-            })
-
+            setLoading(true)
+            const res = await generateNames({ category, styles, count, mandatory })
             if (res.status === 401 || res.status === 403) {
                 // Token inválido/expirado
                 localStorage.removeItem('token')
@@ -132,6 +63,8 @@ export const Generator = () => {
             }
         } catch (err) {
             console.warn('Fallo al conectar con backend para generar:', err)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -151,7 +84,8 @@ export const Generator = () => {
     const toggleStyle = (k) => setStyles(s => ({ ...s, [k]: !s[k] }))
 
     return (
-        <div className={`min-h-screen py-12 ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
+        <div className={`py-12 ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
+            <Spinner active={loading} delay={3000} transparentBackground={true} />
             <div className="max-w-4xl mx-auto px-6">
                 <div className="flex justify-between items-start mb-6">
                     <div>
@@ -185,8 +119,8 @@ export const Generator = () => {
                         </div>
 
                         <div className="flex gap-2">
-                            <button onClick={handleGenerateClick} className="bg-emerald-300 text-black px-4 py-2 rounded font-semibold">Generar</button>
-                            <button onClick={() => { setResults([]) }} className="border px-4 py-2 rounded">Limpiar</button>
+                            <button disabled={loading} onClick={handleGenerateClick} className={`bg-emerald-300 text-black px-4 py-2 rounded font-semibold ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>Generar</button>
+                            <button disabled={loading} onClick={() => { setResults([]) }} className={`border px-4 py-2 rounded ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>Limpiar</button>
                         </div>
                     </div>
 
@@ -246,7 +180,7 @@ export const Generator = () => {
                             <button onClick={() => setShowConfirmModal(false)} className={`border px-4 py-2 rounded font-semibold ${darkMode ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-300 hover:bg-gray-50'}`}>
                                 Cancelar
                             </button>
-                            <button onClick={confirmGenerate} className="bg-emerald-300 text-black px-4 py-2 rounded font-semibold hover:bg-emerald-400">
+                            <button disabled={loading} onClick={confirmGenerate} className={`bg-emerald-300 text-black px-4 py-2 rounded font-semibold hover:bg-emerald-400 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
                                 Generar de todas formas
                             </button>
                         </div>

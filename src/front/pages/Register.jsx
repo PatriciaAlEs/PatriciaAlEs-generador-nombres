@@ -32,9 +32,9 @@ export const Register = () => {
     }
 
     return (
-        <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
-            <div className={`w-full max-w-md p-8 rounded-xl shadow-lg ${darkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}>
-                <h2 className="text-2xl font-bold mb-4 text-emerald-300">Crear cuenta</h2>
+        <div className={`min-h-screen flex items-center justify-center py-12 ${darkMode ? 'bg-gray-950' : 'bg-white'}`}>
+            <div className={`w-full max-w-md p-8 rounded-xl border-2 border-emerald-300/80 shadow-2xl ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+                <h2 className="text-2xl font-bold mb-4 text-emerald-300 text-center">Crear cuenta</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : ''}`}>Email</label>
@@ -46,7 +46,7 @@ export const Register = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <button className="bg-emerald-300 text-black font-semibold px-4 py-2 rounded">Registrarme</button>
+                        <button className="bg-emerald-300 text-black font-semibold px-4 py-2 rounded border-2 border-emerald-300 shadow-md hover:shadow-lg transform transition duration-200 hover:-translate-y-0.5">Registrarme</button>
                         <a className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`} href="/forgot">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>

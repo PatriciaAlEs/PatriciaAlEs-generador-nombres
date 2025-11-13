@@ -13,9 +13,13 @@ export const Navbar = () => {
 				</Link>
 
 				<nav className="flex items-center gap-3">
-					<Link to="/generator" className={`text-sm font-medium hover:underline ${darkMode ? 'text-gray-300 hover:text-white' : 'text-black'}`}>Generador</Link>
-					<Link to="/register" className="text-sm font-medium text-emerald-300 hover:underline">Regístrate</Link>
-					<Link to="/login" className={`text-sm font-medium border px-3 py-1 rounded transition ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-800' : 'border-black text-black hover:bg-black hover:text-white'}`}>Entrar</Link>
+					{/* El enlace al generador se muestra en la página Home como botón principal */}
+					<Link to="/register" className={`text-sm font-medium px-3 py-1 rounded transform transition duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-lg ${darkMode ? 'bg-emerald-400 text-black' : 'bg-emerald-300 text-black'}`}>
+						Regístrate
+					</Link>
+					<Link to="/login" className={`text-sm font-medium px-3 py-1 rounded transform transition duration-300 hover:-translate-y-1 hover:scale-105 hover:shadow-lg ${darkMode ? 'border border-gray-600 text-gray-300 hover:bg-gray-800' : 'border border-black text-black hover:text-emerald-300'}`}>
+						Entrar
+					</Link>
 					<button onClick={toggleDarkMode} className={`text-sm font-medium px-3 py-1 rounded transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-200 hover:bg-gray-300'}`}>
 						{darkMode ? '☀️' : '🌙'}
 					</button>

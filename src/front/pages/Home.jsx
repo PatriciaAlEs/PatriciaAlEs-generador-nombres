@@ -1,10 +1,17 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDarkMode } from "../context/DarkModeContext"
 
 // Landing/Home diseñado con Tailwind — paleta: menta (verde menta), blanco y negro
 export const Home = () => {
 	const { darkMode } = useDarkMode()
+	const navigate = useNavigate()
+
+	const handleGenerator = () => {
+		const token = localStorage.getItem('token')
+		if (token) navigate('/generator')
+		else navigate('/login')
+	}
 
 	return (
 		<div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-black'}`}>
@@ -17,6 +24,8 @@ export const Home = () => {
 							categoría, mezcla estilos y obtén propuestas listas para usar en tus partidas.
 						</p>
 
+						{/* El acceso principal al generador se muestra en la tarjeta derecha (ver abajo) */}
+
 						<div className="flex items-center gap-4">
 							<Link to="/register" className="inline-block">
 								<button className="bg-emerald-300 text-black font-semibold px-6 py-3 rounded-lg shadow-lg transform transition duration-300 hover:-translate-y-1 hover:scale-105">
@@ -25,7 +34,7 @@ export const Home = () => {
 							</Link>
 
 							<Link to="/login" className="inline-block">
-								<button className={`border-2 px-6 py-3 rounded-lg font-medium transition ${darkMode ? 'border-gray-400 text-gray-300 hover:bg-gray-800' : 'border-black text-black hover:bg-black hover:text-white'}`}>
+								<button className={`border-2 px-6 py-3 rounded-lg font-medium transform transition duration-300 hover:-translate-y-1 hover:scale-105 ${darkMode ? 'border-gray-400 text-gray-300 hover:bg-gray-800' : 'border-black text-black'}`}>
 									Iniciar sesión
 								</button>
 							</Link>
@@ -46,6 +55,13 @@ export const Home = () => {
 
 						<div className="mt-6">
 							<p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-300'}`}>Empieza ahora — regístrate y prueba las sugerencias.</p>
+						</div>
+
+						{/* Botón prominente debajo del cuadro "¿Qué hace este proyecto?" */}
+						<div className="mt-6">
+							<button onClick={handleGenerator} className={`w-full text-center font-bold py-4 rounded-2xl shadow-xl transform transition duration-200 ${darkMode ? 'bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-black hover:scale-105' : 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black hover:scale-105'}`}>
+								Ir al Generador
+							</button>
 						</div>
 					</div>
 				</div>

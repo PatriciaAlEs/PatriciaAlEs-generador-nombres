@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------> ENDPOINTS DE PERFIL (GET, PUT, DELETE)
-from api.email import send_email
+from src.api.email import send_email
 from datetime import timedelta
 from email.message import EmailMessage
 import smtplib

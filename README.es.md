@@ -1,38 +1,29 @@
 🧪 Generador de Nombres
 
-Aplicación full-stack que genera nombres de forma dinámica.
-Frontend en React, backend en Flask, comunicándose mediante API REST.
-Proyecto orientado a practicar integración cliente-servidor, estructura de proyectos escalables y buenas prácticas de desarrollo web.
+🧠 Aplicación full-stack que genera nombres de forma dinámica
+✨ Frontend en React, backend en Flask
+🔌 Comunicación mediante API REST
+
+Proyecto creado para practicar integración cliente-servidor, arquitectura escalable y buenas prácticas de desarrollo web.
 
 🚀 Funcionalidades
 
-Generación de nombres desde el backend
-
-Interfaz sencilla en React
-
-Consumo de API propia
-
-Arquitectura separada: UI (Frontend) + Lógica (Backend)
+✔ Generación de nombres desde el backend
+✔ Interfaz dinámica con React
+✔ Consumo de API propia
+✔ Separación clara: UI (Frontend) + Lógica (Backend)
 
 🛠️ Tecnologías utilizadas
-Frontend
+Área	Tecnologías
+Frontend	React, JavaScript, HTML, CSS
+Backend	Python, Flask
+Otros	Fetch API, Pipenv, Docker (opcional)
+📸 Vista previa (cuando tengas una captura o GIF)
 
-React
+(Aquí añadimos una imagen cuando tengas un pantallazo de la app funcionando)
+Ejemplo:
 
-JavaScript
-
-HTML / CSS
-
-Backend
-
-Python
-
-Flask
-
-Otros
-
-Fetch API
-Instalación via Pipenv / Docker (opcional)
+![App Screenshot](./screenshots/app.png)
 
 ⚙️ Instalación y ejecución
 
@@ -47,6 +38,7 @@ pipenv install
 pipenv run start
 
 
+👉 Servidor en: http://localhost:3000
 
 🔹 Frontend (React)
 cd src/front
@@ -54,33 +46,43 @@ npm install
 npm run start
 
 
-Frontend disponible en: http://localhost:3001
+👉 Aplicación en: http://localhost:3001
 
-Asegúrate de tener ambos servicios levantados para que la app funcione correctamente.
+🧩 Ambos servicios deben estar activos para el correcto funcionamiento.
 
 🏗️ Arquitectura
-React (Frontend) --> API REST --> Flask (Backend)
+graph LR
+A[React - Frontend] --> B[API REST]
+B --> C[Flask - Backend]
 
 
-Separación por carpetas:
+📂 Estructura:
 
-src/front → interfaz y lógica del cliente
+src/
+ ├─ front/    → Interfaz y lógica del cliente
+ └─ server/   → API y generador de nombres
 
-src/server → API y lógica del generador de nombres
+🚧 Mejoras futuras / Roadmap
 
-🧩 Mejoras futuras / Roadmap
+Temáticas variadas para la generación de nombres
 
-Temáticas diferentes de generación de nombres
+Guardado de favoritos
 
-Sistema de favoritos
+Interfaz más visual
 
-Estilos más avanzados en la interfaz
-
-Despliegue online (Render / Netlify)
+Deploy online (Netlify + Render)
 
 👩‍💻 Autora
 
-Patricia Álvarez
-🔗 LinkedIn: (https://www.linkedin.com/in/patricia-alvarez-estevez/)
-📌 Portfolio: (work in progress)
+Patricia Álvarez Estevez
+📎 LinkedIn: https://www.linkedin.com/in/patricia-alvarez-estevez/
 
+🌍 Portfolio: (Work in progress)
+
+👉 ¿Qué le añadiría como siguiente paso?
+
+1️⃣ Captura de pantalla o GIF funcionando → muchísimo impacto visual
+2️⃣ Un mini apartado explicando cómo se generan los nombres (simple, pero sumas puntos técnicos)
+3️⃣ Un badge al principio tipo:
+
+![Status](https://img.shields.io/badge/status-in%20progress-yellow)

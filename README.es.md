@@ -31,7 +31,7 @@ Proyecto creado para practicar integración cliente-servidor, arquitectura escal
 ## 📸 Vista previa
 
 <p align="center">
-  <img src="./screenshots/generador.png" width="85%" />
+  <img src="./src/front/assets/img/Captura%20de%20pantalla%202025-11-29%20113001.png" width="85%" />
 </p>
 
 

@@ -1,36 +1,50 @@
-🧪 Generador de Nombres
+# 🧪 Generador de Nombres
 
-🧠 Aplicación full-stack que genera nombres de forma dinámica
-✨ Frontend en React, backend en Flask
-🔌 Comunicación mediante API REST
+🧠 Aplicación **full-stack** que genera nombres de forma dinámica  
+✨ Frontend en **React**, backend en **Flask**  
+🔌 Comunicación mediante **API REST**
 
 Proyecto creado para practicar integración cliente-servidor, arquitectura escalable y buenas prácticas de desarrollo web.
 
-🚀 Funcionalidades
+---
 
-✔ Generación de nombres desde el backend
-✔ Interfaz dinámica con React
-✔ Consumo de API propia
-✔ Separación clara: UI (Frontend) + Lógica (Backend)
+## 🚀 Funcionalidades
 
-🛠️ Tecnologías utilizadas
-Área	Tecnologías
-Frontend	React, JavaScript, HTML, CSS
-Backend	Python, Flask
-Otros	Fetch API, Pipenv, Docker (opcional)
-📸 Vista previa (cuando tengas una captura o GIF)
+- ✔ Generación de nombres desde el backend  
+- ✔ Interfaz dinámica con React  
+- ✔ Consumo de API propia  
+- ✔ Separación clara: **UI (Frontend) + Lógica (Backend)**  
 
-(Aquí añadimos una imagen cuando tengas un pantallazo de la app funcionando)
-Ejemplo:
+---
 
-![App Screenshot](./screenshots/app.png)
+## 🛠️ Tecnologías utilizadas
 
-⚙️ Instalación y ejecución
+| Área | Tecnologías |
+|------|-------------|
+| **Frontend** | React, JavaScript, HTML, CSS |
+| **Backend** | Python, Flask |
+| **Otros** | Fetch API, Pipenv (Docker opcional) |
+
+---
+
+## 📸 Vista previa *(Pendiente)*
+
+## 📸 Vista previa
+
+![Pantalla principal](./src/front/assets/img/Captura%20de%20pantalla%202025-11-29%20113001.png)
+![Pantalla secundaria](./src/front/assets/img/Captura%20de%20pantalla%202025-11-29%20112412.png)
+
+
+---
+
+## ⚙️ Instalación y ejecución
 
 Clonar el repositorio:
 
+```bash
 git clone https://github.com/PatriciaAlEs/PatriciaAlEs-generador-nombres
 cd PatriciaAlEs-generador-nombres
+
 
 🔹 Backend (Flask)
 cd src/server
